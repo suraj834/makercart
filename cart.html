@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f6f8f4">
+  <title>Your cart and checkout | MakerCart</title><meta name="description" content="Review your MakerCart components, update quantities and send your order details securely via WhatsApp.">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="MakerCart"><meta property="og:title" content="Your cart and checkout | MakerCart"><meta property="og:description" content="Review your components and prepare your MakerCart order."><meta property="og:image" content="images/makercart-social.svg"><meta property="og:url" content="cart.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css"><script defer src="js/products.js"></script><script defer src="js/main.js"></script>
+</head>
+<body data-page="cart">
+  <div id="site-header"></div>
+  <main>
+    <section class="page-hero page-hero-compact wrap"><p class="eyebrow">YOUR WORKBENCH, IN PROGRESS</p><h1>Your <span>cart.</span></h1><p>Take a look through your parts before you send your order.</p></section>
+    <section class="wrap cart-layout">
+      <div class="cart-main"><div class="cart-list" id="cart-items" aria-live="polite"></div><div class="cart-empty hidden" id="cart-empty"><span class="empty-basket" aria-hidden="true">⌑</span><h2>Nothing in your cart yet.</h2><p>Good ideas start somewhere. Find your first component.</p><a class="button button-primary" href="shop.html">Explore the shop <span aria-hidden="true">→</span></a></div></div>
+      <aside class="order-panel" id="order-panel">
+        <h2>Order summary</h2><div class="summary-line"><span>Items</span><span id="cart-item-count">0</span></div><div class="summary-line"><span>Subtotal</span><strong id="cart-subtotal">₹0</strong></div><div class="summary-total"><span>Total</span><strong id="cart-total">₹0</strong></div><p class="shipping-note">Delivery charges and timing will be confirmed before the order is accepted.</p><p class="catalogue-note catalogue-note-box">This starter cart uses sample items and prices. Replace them with your actual products before taking orders.</p>
+        <form class="checkout-form" id="checkout-form">
+          <h3>Send your order</h3><p class="form-intro">Share your details and we'll open a ready-to-send WhatsApp message.</p>
+          <label for="customer-name">Your name</label><input id="customer-name" name="name" autocomplete="name" required maxlength="80" placeholder="Name">
+          <label for="customer-phone">Phone number</label><input id="customer-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20" placeholder="Your contact number">
+          <label for="customer-address">Delivery address</label><textarea id="customer-address" name="address" autocomplete="street-address" rows="3" required maxlength="300" placeholder="House / street, city, PIN code"></textarea>
+          <fieldset class="payment-choice"><legend>Preferred payment</legend><label><input type="radio" name="payment" value="UPI" checked> UPI</label><label><input type="radio" name="payment" value="Cash on delivery"> Cash on delivery</label></fieldset>
+          <button class="button button-primary checkout-button" id="checkout-submit" type="submit">Continue on WhatsApp <span aria-hidden="true">↗</span></button><p class="checkout-note" id="checkout-note">Your order is only sent when you press Send in WhatsApp.</p>
+        </form>
+        <div class="upi-panel"><div class="upi-copy"><p class="eyebrow">PAY BY UPI</p><h3>Easy, familiar, Indian.</h3><p>Once your order is confirmed, pay to this UPI ID or scan the store's QR.</p><div class="upi-id-row"><code id="upi-id-text">yourname@upi</code><button type="button" class="copy-button" id="copy-upi" aria-label="Copy UPI ID">Copy</button></div><small>UPI ID is a placeholder. Confirm details with the seller before paying.</small></div><img class="upi-qr" src="images/upi-qr-placeholder.svg" alt="Placeholder graphic for the MakerCart UPI QR code; replace with a scannable payment QR before launch"></div>
+      </aside>
+    </section>
+    <section class="trust-strip cart-trust"><div class="wrap trust-items"><span><i>⌁</i> Confirm before payment</span><span><i>☏</i> Message us with questions</span><span><i>↗</i> UPI or cash on delivery</span></div></section>
+  </main>
+  <div id="site-footer"></div>
+</body>
+</html>

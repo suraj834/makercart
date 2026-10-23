@@ -1,0 +1,25 @@
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor and temporary files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# Logs and dependency folders (the site itself uses no build tools)
+*.log
+node_modules/
+
+# Generated output and local caches
+dist/
+coverage/
+.cache/
+
+# Local environment files; never commit real credentials
+.env
+.env.*
+!.env.example

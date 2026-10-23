@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8f4">
+  <title>Shop electronics and sensors | MakerCart</title>
+  <meta name="description" content="Browse MakerCart development boards, sensors and beginner-friendly electronics kits. Find components for class, prototyping and your next maker project.">
+  <meta property="og:type" content="website"><meta property="og:site_name" content="MakerCart">
+  <meta property="og:title" content="Shop electronics and sensors | MakerCart"><meta property="og:description" content="Find project-ready development boards, sensors and electronics kits.">
+  <meta property="og:image" content="images/makercart-social.svg"><meta property="og:url" content="shop.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css"><script defer src="js/products.js"></script><script defer src="js/main.js"></script>
+</head>
+<body data-page="shop">
+  <div id="site-header"></div>
+  <main>
+    <section class="page-hero wrap"><p class="eyebrow">THE MAKERCART SHOP</p><h1>Find your next <span>building block.</span></h1><p>Boards, sensors and small essentials for projects of every size.</p><div class="breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span>Shop</span></div></section>
+    <section class="wrap shop-content">
+      <p class="catalogue-note catalogue-note-box">Starter catalogue: product names, specifications, illustrations and prices are examples. Update them with your real products before accepting orders.</p>
+      <div class="shop-toolbar"><p id="product-count" aria-live="polite"></p><div class="shop-controls"><label class="search-control"><span class="sr-only">Search products</span><span aria-hidden="true">⌕</span><input id="product-search" type="search" placeholder="Search components"></label><label class="filter-control"><span class="sr-only">Filter by category</span><select id="category-filter"><option value="all">All categories</option><option value="boards">Development boards</option><option value="sensors">Sensors</option><option value="kits">Kits & essentials</option></select></label></div></div>
+      <div class="product-grid shop-grid" id="shop-products" aria-live="polite"></div>
+      <div class="empty-state hidden" id="no-products"><span aria-hidden="true">⌕</span><h2>No matching parts yet</h2><p>Try another search or view all categories.</p><button class="button button-outline" id="clear-filters" type="button">Clear filters</button></div>
+    </section>
+    <section class="shop-help wrap"><div><p class="eyebrow">NEED A HAND CHOOSING?</p><h2>Not sure which part fits?</h2><p>Tell us what you're building and we'll help you narrow it down.</p></div><a class="button button-primary" href="contact.html">Ask on WhatsApp <span aria-hidden="true">↗</span></a></section>
+  </main>
+  <div id="site-footer"></div>
+</body>
+</html>
