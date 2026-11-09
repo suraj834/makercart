@@ -387,6 +387,13 @@
 
     const checkoutForm = document.getElementById("checkout-form");
     if (checkoutForm) checkoutForm.addEventListener("submit", handleCheckout);
+    const paymentComplete = document.getElementById("payment-complete");
+    if (paymentComplete) paymentComplete.addEventListener("click", () => {
+      document.getElementById("payment-step").classList.add("hidden");
+      document.getElementById("payment-success").classList.remove("hidden");
+      document.getElementById("checkout-note").textContent = "Payment marked as completed. We will contact you shortly to confirm your order.";
+      document.getElementById("payment-success").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
     const copyButton = document.getElementById("copy-upi");
     if (copyButton) copyButton.addEventListener("click", async () => {
       try {
