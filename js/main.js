@@ -410,6 +410,14 @@
     const paymentClose = document.getElementById("payment-close");
     const proofPreview = document.getElementById("proof-preview");
     const uploadName = document.getElementById("upload-name");
+    const paymentRadios = document.querySelectorAll('input[name="payment"]');
+    const updatePaymentInstructions = () => {
+      const cod = document.querySelector('input[name="payment"]:checked')?.value === "Cash on delivery";
+      if (paymentComplete) paymentComplete.innerHTML = cod ? 'Confirm cash on delivery <span aria-hidden="true">✓</span>' : 'Send payment proof on WhatsApp <span aria-hidden="true">↗</span>';
+      if (paymentProof) paymentProof.required = !cod;
+      if (uploadName) uploadName.textContent = cod ? "No payment upload is needed for cash on delivery." : "After payment, upload your screenshot to send it with your order.";
+    };
+    paymentRadios.forEach((radio) => radio.addEventListener("change", updatePaymentInstructions));
     if (paymentProof) paymentProof.addEventListener("change", () => {
       const file = paymentProof.files[0];
       if (!file) return;
@@ -420,21 +428,22 @@
     if (paymentClose) paymentClose.addEventListener("click", () => document.getElementById("payment-step").classList.add("hidden"));
     if (paymentComplete) paymentComplete.addEventListener("click", async () => {
       const file = paymentProof && paymentProof.files[0];
-      if (!file) { uploadName.textContent = "Please upload your payment screenshot first."; return; }
       const form = document.getElementById("checkout-form");
+      const paymentMethod = form.elements.payment.value;
+      if (paymentMethod !== "Cash on delivery" && !file) { uploadName.textContent = "Please upload your payment screenshot first."; return; }
       const entries = cartEntries();
-      const screenshot = await new Promise((resolve, reject) => {
+      const screenshot = file ? await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(String(reader.result).split(",")[1]);
         reader.onerror = reject;
         reader.readAsDataURL(file);
-      });
+      }) : "";
       const total = entries.reduce((sum, entry) => sum + entry.product.price * entry.quantity, 0);
       const result = await submitOrderToGoogle({
         name: form.elements.name.value.trim(), phone: form.elements.phone.value.trim(),
-        address: form.elements.address.value.trim(), payment: form.elements.payment.value,
+        address: form.elements.address.value.trim(), payment: paymentMethod,
         total: money(total), items: entries.map(({ product, quantity }) => ({ name: product.name, quantity, price: product.price })),
-        screenshot: { name: file.name, type: file.type, data: screenshot }
+        screenshot: file ? { name: file.name, type: file.type, data: screenshot } : null
       });
       if (result.missingEndpoint) {
         uploadName.textContent = "Google Drive is not connected yet. Add the Apps Script URL in js/main.js.";
