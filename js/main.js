@@ -9,6 +9,7 @@
   const WHATSAPP_NUMBER = "919140766574";
   // Replace with your real UPI ID. The QR image in cart.html must also be replaced.
   const UPI_ID = "surajpandey67@icici";
+  const GOOGLE_ORDER_ENDPOINT = "";
   const CART_KEY = "makercart-cart-v1";
   const products = Array.isArray(window.MAKER_CART_PRODUCTS) ? window.MAKER_CART_PRODUCTS : [];
   let toastTimer;
@@ -283,6 +284,16 @@
     return true;
   }
 
+  async function submitOrderToGoogle(payload) {
+    if (!GOOGLE_ORDER_ENDPOINT) return { ok: false, missingEndpoint: true };
+    const response = await fetch(GOOGLE_ORDER_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    return response.json();
+  }
+
   function handleCheckout(event) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -405,12 +416,26 @@
     if (paymentComplete) paymentComplete.addEventListener("click", async () => {
       const file = paymentProof && paymentProof.files[0];
       if (!file) { uploadName.textContent = "Please upload your payment screenshot first."; return; }
-      const message = "Hello Maker Cart! I have completed my payment. My payment screenshot is attached.";
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ title: "Maker Cart payment proof", text: message, files: [file] });
-      } else {
-        openWhatsApp(message + " I will attach the screenshot in WhatsApp.");
+      const form = document.getElementById("checkout-form");
+      const entries = cartEntries();
+      const screenshot = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const total = entries.reduce((sum, entry) => sum + entry.product.price * entry.quantity, 0);
+      const result = await submitOrderToGoogle({
+        name: form.elements.name.value.trim(), phone: form.elements.phone.value.trim(),
+        address: form.elements.address.value.trim(), payment: form.elements.payment.value,
+        total: money(total), items: entries.map(({ product, quantity }) => ({ name: product.name, quantity, price: product.price })),
+        screenshot: { name: file.name, type: file.type, data: screenshot }
+      });
+      if (result.missingEndpoint) {
+        uploadName.textContent = "Google Drive is not connected yet. Add the Apps Script URL in js/main.js.";
+        return;
       }
+      if (!result.ok) { uploadName.textContent = "The order could not be saved. Please try again."; return; }
       document.getElementById("payment-step").classList.add("hidden");
       document.getElementById("payment-success").classList.remove("hidden");
     });
