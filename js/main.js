@@ -192,7 +192,7 @@
     const crumb = document.getElementById("product-breadcrumb-name");
     if (!product) {
       document.title = "Product not found | MakerCart";
-      setMeta('meta[name="description"]', "This MakerCart item could not be found. Browse our shop for boards, sensors and starter kits.");
+      setMeta('meta[name="description"]', "This MakerCart item could not be found. Browse our shop for development boards, sensors and electronics kits.");
       setMeta('meta[property="og:title"]', "Product not found | MakerCart");
       mount.innerHTML = `<div class="not-found"><p class="eyebrow">THAT PART ISN'T HERE</p><h1>We couldn't find that product.</h1><p class="section-intro">It may have moved. Browse the shop to find another building block.</p><a class="button button-primary" href="shop.html">Visit the shop <span aria-hidden="true">→</span></a></div>`;
       if (related) related.innerHTML = products.slice(0, 3).map(createProductCard).join("");
@@ -214,7 +214,6 @@
           <p class="product-category">${escapeHTML(product.categoryLabel)}</p>
           <h1>${escapeHTML(product.name)}</h1>
           <p class="product-detail-price">${money(product.price)}</p>
-          <p class="catalogue-note catalogue-note-box">Starter example product and price. Update the catalogue with your real item details before accepting orders.</p>
           <p class="product-detail-description">${escapeHTML(product.description)}</p>
           <p class="detail-tag">${escapeHTML(product.tag)}</p>
           <div class="detail-specs"><h2>What to know</h2><ul class="check-list">${product.specs.map((spec) => `<li>${escapeHTML(spec)}</li>`).join("")}</ul></div>
@@ -257,7 +256,10 @@
     document.getElementById("cart-item-count").textContent = String(quantity);
     document.getElementById("cart-subtotal").textContent = money(subtotal);
     document.getElementById("cart-total").textContent = money(subtotal);
-    document.getElementById("upi-id-text").textContent = UPI_ID;
+    const upiText = document.getElementById("upi-id-text");
+    if (upiText) upiText.textContent = UPI_ID;
+    const largeUpi = document.getElementById("upi-id-large-text");
+    if (largeUpi) largeUpi.textContent = UPI_ID;
   }
 
   function addToCart(id, amount = 1) {
@@ -388,11 +390,29 @@
     const checkoutForm = document.getElementById("checkout-form");
     if (checkoutForm) checkoutForm.addEventListener("submit", handleCheckout);
     const paymentComplete = document.getElementById("payment-complete");
-    if (paymentComplete) paymentComplete.addEventListener("click", () => {
+    const paymentProof = document.getElementById("payment-proof");
+    const paymentClose = document.getElementById("payment-close");
+    const proofPreview = document.getElementById("proof-preview");
+    const uploadName = document.getElementById("upload-name");
+    if (paymentProof) paymentProof.addEventListener("change", () => {
+      const file = paymentProof.files[0];
+      if (!file) return;
+      uploadName.textContent = file.name;
+      proofPreview.src = URL.createObjectURL(file);
+      proofPreview.classList.remove("hidden");
+    });
+    if (paymentClose) paymentClose.addEventListener("click", () => document.getElementById("payment-step").classList.add("hidden"));
+    if (paymentComplete) paymentComplete.addEventListener("click", async () => {
+      const file = paymentProof && paymentProof.files[0];
+      if (!file) { uploadName.textContent = "Please upload your payment screenshot first."; return; }
+      const message = "Hello Maker Cart! I have completed my payment. My payment screenshot is attached.";
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ title: "Maker Cart payment proof", text: message, files: [file] });
+      } else {
+        openWhatsApp(message + " I will attach the screenshot in WhatsApp.");
+      }
       document.getElementById("payment-step").classList.add("hidden");
       document.getElementById("payment-success").classList.remove("hidden");
-      document.getElementById("checkout-note").textContent = "Payment marked as completed. We will contact you shortly to confirm your order.";
-      document.getElementById("payment-success").scrollIntoView({ behavior: "smooth", block: "center" });
     });
     const copyButton = document.getElementById("copy-upi");
     if (copyButton) copyButton.addEventListener("click", async () => {

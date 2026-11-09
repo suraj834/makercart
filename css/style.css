@@ -271,6 +271,18 @@ h3 { font-size: 19px; font-weight: 800; }
 .payment-success .success-icon { width: 44px; height: 44px; margin: 0 auto 12px; display: grid; place-items: center; border-radius: 50%; background: var(--green); color: #fff; font-size: 24px; font-weight: 800; }
 .payment-success h3 { margin: 7px 0; font-size: 24px; }
 .payment-success p:not(.eyebrow) { margin: 0 auto 18px; color: var(--muted); line-height: 1.55; }
+.payment-step { position: fixed; inset: 0; z-index: 40; margin: 0; padding: 24px; overflow-y: auto; background: rgba(24, 43, 37, .72); }
+.payment-screen { position: relative; width: min(560px, 100%); margin: 20px auto; padding: 34px 28px; border-radius: 24px; background: var(--paper); text-align: center; box-shadow: 0 20px 70px rgba(0, 0, 0, .25); }
+.payment-close { position: absolute; top: 12px; right: 16px; border: 0; background: transparent; color: var(--muted); font-size: 30px; cursor: pointer; }
+.payment-screen h2 { margin: 6px 0; font-size: 30px; }
+.payment-screen > p:not(.eyebrow), .upload-name { color: var(--muted); line-height: 1.5; }
+.upi-qr-large { display: block; width: min(310px, 80vw); height: min(310px, 80vw); margin: 20px auto; object-fit: contain; border-radius: 14px; background: #fff; }
+.upi-id-large { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 0 auto 18px; }
+.upi-id-large span { color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; }
+.upi-id-large strong { padding: 10px 12px; border-radius: 8px; background: #eef5ee; color: var(--teal-dark); font-size: 17px; }
+.upload-proof { display: block; margin: 16px auto 8px; padding: 12px; border: 1px dashed var(--teal); border-radius: 10px; color: var(--teal-dark); font-weight: 700; cursor: pointer; }
+.upload-proof input { display: block; width: 100%; margin-top: 8px; font-weight: 400; }
+.proof-preview { display: block; max-width: 180px; max-height: 120px; margin: 12px auto; border-radius: 8px; }
 .upi-copy .eyebrow { margin-bottom: 7px; font-size: 9px; }
 .upi-copy h3 { margin-bottom: 6px; font-size: 17px; }
 .upi-copy > p:not(.eyebrow) { margin-bottom: 11px; color: var(--muted); font-size: 10px; line-height: 1.5; }
