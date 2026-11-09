@@ -286,12 +286,17 @@
 
   async function submitOrderToGoogle(payload) {
     if (!GOOGLE_ORDER_ENDPOINT) return { ok: false, missingEndpoint: true };
-    const response = await fetch(GOOGLE_ORDER_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
-    });
-    return response.json();
+    try {
+      await fetch(GOOGLE_ORDER_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: error.message };
+    }
   }
 
   function handleCheckout(event) {
