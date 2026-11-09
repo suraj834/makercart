@@ -9,7 +9,7 @@
   const WHATSAPP_NUMBER = "919140766574";
   // Replace with your real UPI ID. The QR image in cart.html must also be replaced.
   const UPI_ID = "surajpandey67@icici";
-  const GOOGLE_ORDER_ENDPOINT = "";
+  const GOOGLE_ORDER_ENDPOINT = "https://script.google.com/macros/s/AKfycbymVYDKdLHZrqzjmdQBu7_zVFCF6QuYMSvft0SYJE0d0Ve6vVPFLE3LEsk3T4AgPQaT/exec";
   const CART_KEY = "makercart-cart-v1";
   const products = Array.isArray(window.MAKER_CART_PRODUCTS) ? window.MAKER_CART_PRODUCTS : [];
   let toastTimer;
