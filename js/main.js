@@ -290,6 +290,15 @@
       showToast("Your cart is empty. Add a product before checkout.");
       return;
     }
+    const paymentStep = document.getElementById("payment-step");
+    if (!form.dataset.paymentReady) {
+      form.dataset.paymentReady = "true";
+      paymentStep.classList.remove("hidden");
+      document.getElementById("checkout-submit").classList.add("hidden");
+      document.getElementById("checkout-note").textContent = "Choose a payment option below. You can send the order on WhatsApp after payment or choose cash on delivery.";
+      paymentStep.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
     const name = form.elements.name.value.trim();
     const phone = form.elements.phone.value.trim();
     const address = form.elements.address.value.trim();

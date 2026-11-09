@@ -264,11 +264,15 @@ h3 { font-size: 19px; font-weight: 800; }
 .checkout-button { width: 100%; }
 .checkout-note { margin: 11px 0 0; color: var(--muted); font-size: 10px; text-align: center; }
 .upi-panel { margin-top: 25px; padding: 17px; display: grid; grid-template-columns: 1fr 82px; align-items: center; gap: 13px; border-radius: 15px; background: #eef5ee; }
+.payment-step { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
+.payment-step .upi-panel { margin-top: 0; }
+.payment-step .checkout-button { width: 100%; margin-top: 15px; }
 .upi-copy .eyebrow { margin-bottom: 7px; font-size: 9px; }
 .upi-copy h3 { margin-bottom: 6px; font-size: 17px; }
 .upi-copy > p:not(.eyebrow) { margin-bottom: 11px; color: var(--muted); font-size: 10px; line-height: 1.5; }
 .upi-id-row { display: flex; align-items: center; gap: 6px; }
 .upi-id-row code { min-width: 0; overflow: hidden; color: var(--teal-dark); font-family: var(--font-body); font-size: 11px; font-weight: 700; text-overflow: ellipsis; }
+.upi-id-row code { padding: 8px 10px; border-radius: 7px; background: #fff; font-size: 14px; letter-spacing: .2px; }
 .copy-button { min-height: 44px; padding: 0 10px; border: 1px solid #bdd5c9; border-radius: 999px; background: #fff; color: var(--teal-dark); font-size: 10px; font-weight: 700; cursor: pointer; }
 .upi-copy small { display: block; margin-top: 8px; color: #778985; font-size: 9px; line-height: 1.45; }
 .upi-qr { width: 82px; height: 82px; border-radius: 9px; }
