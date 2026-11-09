@@ -6,9 +6,9 @@
   "use strict";
 
   // Use digits only, including country code (for example, 91 followed by the mobile number).
-  const WHATSAPP_NUMBER = "";
+  const WHATSAPP_NUMBER = "919140766574";
   // Replace with your real UPI ID. The QR image in cart.html must also be replaced.
-  const UPI_ID = "yourname@upi";
+  const UPI_ID = "surajpandey67@icici";
   const CART_KEY = "makercart-cart-v1";
   const products = Array.isArray(window.MAKER_CART_PRODUCTS) ? window.MAKER_CART_PRODUCTS : [];
   let toastTimer;
@@ -105,7 +105,7 @@
               <p>Good parts for curious minds. Find a starting point, ask a question and keep your next idea moving.</p>
             </div>
             <div><p class="footer-heading">Explore</p><nav class="footer-links" aria-label="Footer shop links"><a href="shop.html">Shop all parts</a><a href="about.html">Our story</a><a href="contact.html">Get in touch</a></nav></div>
-            <div><p class="footer-heading">Need a hand?</p><nav class="footer-links" aria-label="Footer help links"><a href="contact.html">Product questions</a><a href="contact.html#faq">Shipping & FAQs</a><a href="cart.html">Your cart</a></nav></div>
+          <div><p class="footer-heading">Need a hand?</p><nav class="footer-links" aria-label="Footer help links"><a href="contact.html">Product questions</a><a href="shipping.html">Shipping & returns</a><a href="cart.html">Your cart</a></nav></div>
           </div>
           <div class="footer-bottom"><p>© ${new Date().getFullYear()} MakerCart. Keep making.</p><p>Delivery and payment details are confirmed directly before an order is accepted.</p></div>
         </div>
@@ -209,7 +209,7 @@
     setMeta('meta[property="og:url"]', window.location.href);
     mount.innerHTML = `
       <div class="product-detail-layout">
-        <div class="product-detail-image"><img src="${escapeHTML(product.image)}" alt="${escapeHTML(product.imageAlt)}"></div>
+        <div class="product-detail-gallery"><div class="product-detail-image"><img src="${escapeHTML(product.image)}" alt="${escapeHTML(product.imageAlt)}"></div>${product.gallery && product.gallery.length > 1 ? `<div class="product-gallery-thumbs">${product.gallery.map((image, index) => `<button type="button" class="product-gallery-thumb${index === 0 ? ' is-active' : ''}" data-gallery-image="${escapeHTML(image)}" aria-label="View product image ${index + 1}"><img src="${escapeHTML(image)}" alt=""></button>`).join('')}</div>` : ''}</div>
         <div class="product-detail-info">
           <p class="product-category">${escapeHTML(product.categoryLabel)}</p>
           <h1>${escapeHTML(product.name)}</h1>
@@ -226,6 +226,12 @@
       const suggestions = products.filter((item) => item.id !== product.id).slice(0, 3);
       related.innerHTML = suggestions.map(createProductCard).join("");
     }
+    mount.querySelectorAll('[data-gallery-image]').forEach((button) => button.addEventListener('click', () => {
+      const image = mount.querySelector('.product-detail-image img');
+      if (image) image.src = button.dataset.galleryImage;
+      mount.querySelectorAll('.product-gallery-thumb').forEach((thumb) => thumb.classList.remove('is-active'));
+      button.classList.add('is-active');
+    }));
   }
 
   function cartItemMarkup(product, quantity) {

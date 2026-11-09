@@ -87,5 +87,21 @@ window.MAKER_CART_PRODUCTS = [
     summary: "Connect components and test a circuit before committing to a permanent build.",
     description: "A reusable solderless breadboard and jumper wires make it easier to test circuit ideas and rearrange parts as you learn. A useful companion for development boards and sensor modules.",
     specs: ["Solderless prototype breadboard", "Assorted jumper wires", "For low-voltage learning and prototype circuits", "Check current and voltage limits for your components"]
+  },
+  {
+    id: "7",
+    name: "MPU6050 6-Axis Motion Tracking Sensor Module",
+    shortName: "MPU6050 Motion Sensor",
+    category: "sensors",
+    categoryLabel: "Electronics component",
+    price: 149,
+    tag: "TRACK MOTION",
+    image: "images/mpu6050-sensor-1.jpeg",
+    gallery: ["images/mpu6050-sensor-1.jpeg", "images/mpu6050-sensor-2.jpeg", "images/mpu6050-sensor-3.jpeg"],
+    imageAlt: "MPU6050 GY-521 six-axis motion tracking sensor module",
+    summary: "Measure movement and orientation for Arduino, robotics and drone projects.",
+    description: "The GY-521 module combines a 3-axis gyroscope, 3-axis accelerometer and Digital Motion Processor (DMP) for motion-tracking projects. It is a practical module for Arduino builds, robotics, balancing systems and drone stabilization experiments.",
+    stock: 85,
+    specs: ["3-axis gyroscope and 3-axis accelerometer", "Built-in Digital Motion Processor (DMP)", "I2C serial communication interface", "VCC, GND, SCL, SDA, XDA, XCL, AD0 and INT pins"]
   }
 ];
