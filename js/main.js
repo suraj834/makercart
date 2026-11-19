@@ -9,7 +9,6 @@
   const WHATSAPP_NUMBER = "919140766574";
   // Replace with your real UPI ID. The QR image in cart.html must also be replaced.
   const UPI_ID = "surajpandey67@icici";
-  const GOOGLE_ORDER_ENDPOINT = "https://script.google.com/macros/s/AKfycbymVYDKdLHZrqzjmdQBu7_zVFCF6QuYMSvft0SYJE0d0Ve6vVPFLE3LEsk3T4AgPQaT/exec";
   const API_BASE_URL = "https://eogb5g8pwo.c40.airoapp.ai";
   const CART_KEY = "makercart-cart-v1";
   const products = Array.isArray(window.MAKER_CART_PRODUCTS) ? window.MAKER_CART_PRODUCTS : [];
@@ -285,19 +284,11 @@
     return true;
   }
 
-  async function submitOrderToGoogle(payload) {
-    if (!GOOGLE_ORDER_ENDPOINT) return { ok: false, missingEndpoint: true };
-    try {
-      await fetch(GOOGLE_ORDER_ENDPOINT, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      });
-      return { ok: true };
-    } catch (error) {
-      return { ok: false, error: error.message };
-    }
+  async function submitOrder(payload) {
+    const response = await fetch(`${API_BASE_URL}/api/orders`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Order could not be saved.");
+    return result;
   }
 
   async function startRazorpayPayment() {
@@ -325,12 +316,11 @@
     const form = document.getElementById("checkout-form");
     const entries = cartEntries();
     const total = entries.reduce((sum, entry) => sum + entry.product.price * entry.quantity, 0);
-    const result = await submitOrderToGoogle({
+    const result = await submitOrder({
       name: form.elements.name.value.trim(), phone: form.elements.phone.value.trim(), address: form.elements.address.value.trim(),
       payment, total: money(total), razorpay: razorpayPayment,
       items: entries.map(({ product, quantity }) => ({ name: product.name, quantity, price: product.price })), screenshot: null
     });
-    if (!result.ok && !result.missingEndpoint) throw new Error(result.error || "Order could not be saved.");
   }
 
   function handleCheckout(event) {

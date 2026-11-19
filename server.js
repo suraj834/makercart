@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const https = require("https");
 const crypto = require("crypto");
+const { MongoClient } = require("mongodb");
 
 function loadEnv() {
   try {
@@ -14,6 +15,17 @@ function loadEnv() {
 }
 
 loadEnv();
+let mongoClient;
+let mongoDatabase;
+
+async function getDatabase() {
+  if (mongoDatabase) return mongoDatabase;
+  if (!process.env.MONGODB_URI) throw new Error("MongoDB is not configured on the server.");
+  mongoClient = new MongoClient(process.env.MONGODB_URI);
+  await mongoClient.connect();
+  mongoDatabase = mongoClient.db(process.env.MONGODB_DB || "makercart");
+  return mongoDatabase;
+}
 
 const root = __dirname;
 const port = Number(process.env.PORT) || 3000;
@@ -51,6 +63,24 @@ function requestJson(options, body) {
     request.write(body);
     request.end();
   });
+}
+
+function readRequestBody(request) {
+  return new Promise((resolve) => {
+    let body = "";
+    request.on("data", (chunk) => { body += chunk; });
+    request.on("end", () => resolve(body));
+  });
+}
+
+async function saveOrder(request, response) {
+  try {
+    const payload = JSON.parse(await readRequestBody(request) || "{}");
+    if (!payload.name || !payload.phone || !payload.address || !payload.payment || !Array.isArray(payload.items)) return json(response, 400, { ok: false, error: "Missing order details." });
+    const database = await getDatabase();
+    const result = await database.collection("orders").insertOne({ ...payload, status: "new", createdAt: new Date() });
+    json(response, 201, { ok: true, order_id: result.insertedId.toString() });
+  } catch (error) { json(response, 500, { ok: false, error: error.message }); }
 }
 
 async function createRazorpayOrder(request, response) {
@@ -95,7 +125,7 @@ function fileForRequest(requestUrl) {
 }
 
 const server = http.createServer((request, response) => {
-  if (request.method === "GET" && request.url === "/api/health") return json(response, 200, { ok: true, razorpayConfigured: Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) });
+  if (request.method === "GET" && request.url === "/api/health") return json(response, 200, { ok: true, razorpayConfigured: Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET), databaseConfigured: Boolean(process.env.MONGODB_URI) });
   if (request.method === "OPTIONS" && request.url.startsWith("/api/")) {
     response.writeHead(204, { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" });
     response.end();
@@ -103,6 +133,7 @@ const server = http.createServer((request, response) => {
   }
   if (request.method === "POST" && request.url === "/api/create-order") return createRazorpayOrder(request, response);
   if (request.method === "POST" && request.url === "/api/verify-payment") return verifyRazorpayPayment(request, response);
+  if (request.method === "POST" && request.url === "/api/orders") return saveOrder(request, response);
   const file = fileForRequest(request.url);
   if (!file) {
     response.writeHead(403);
