@@ -10,6 +10,7 @@
   // Replace with your real UPI ID. The QR image in cart.html must also be replaced.
   const UPI_ID = "surajpandey67@icici";
   const GOOGLE_ORDER_ENDPOINT = "https://script.google.com/macros/s/AKfycbymVYDKdLHZrqzjmdQBu7_zVFCF6QuYMSvft0SYJE0d0Ve6vVPFLE3LEsk3T4AgPQaT/exec";
+  const API_BASE_URL = "https://eogb5g8pwo.c40.airoapp.ai";
   const CART_KEY = "makercart-cart-v1";
   const products = Array.isArray(window.MAKER_CART_PRODUCTS) ? window.MAKER_CART_PRODUCTS : [];
   let toastTimer;
@@ -303,13 +304,13 @@
     const form = document.getElementById("checkout-form");
     const entries = cartEntries();
     const totalPaise = Math.round(entries.reduce((sum, entry) => sum + entry.product.price * entry.quantity, 0) * 100);
-    const response = await fetch("/api/create-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ amount: totalPaise, receipt: `mc_${Date.now()}` }) });
+    const response = await fetch(`${API_BASE_URL}/api/create-order`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ amount: totalPaise, receipt: `mc_${Date.now()}` }) });
     const responseText = await response.text();
     let order;
     try { order = JSON.parse(responseText); } catch (error) { throw new Error("The live server is not running the Node.js API yet. Update and publish the GoDaddy app, then try again."); }
     if (!response.ok) throw new Error(order.error || "Unable to create Razorpay order.");
     const checkout = new Razorpay({ key: order.key_id, amount: order.amount, currency: order.currency, name: "Maker Cart", description: "Maker Cart order", order_id: order.order_id, prefill: { name: form.elements.name.value.trim(), contact: form.elements.phone.value.trim() }, theme: { color: "#247f69" }, handler: async (payment) => {
-      const verifyResponse = await fetch("/api/verify-payment", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payment) });
+      const verifyResponse = await fetch(`${API_BASE_URL}/api/verify-payment`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payment) });
       const result = await verifyResponse.json();
       if (!verifyResponse.ok || !result.verified) throw new Error(result.error || "Payment verification failed.");
       await saveOrderRecord("UPI", payment);
