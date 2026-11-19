@@ -95,6 +95,7 @@ function fileForRequest(requestUrl) {
 }
 
 const server = http.createServer((request, response) => {
+  if (request.method === "GET" && request.url === "/api/health") return json(response, 200, { ok: true, razorpayConfigured: Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) });
   if (request.method === "OPTIONS" && request.url.startsWith("/api/")) {
     response.writeHead(204, { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" });
     response.end();
