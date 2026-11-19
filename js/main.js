@@ -312,11 +312,24 @@
       const verifyResponse = await fetch("/api/verify-payment", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payment) });
       const result = await verifyResponse.json();
       if (!verifyResponse.ok || !result.verified) throw new Error(result.error || "Payment verification failed.");
-      document.getElementById("upload-name").textContent = "Razorpay payment verified. You can upload proof if needed, then submit your order.";
-      document.getElementById("payment-complete").click();
+      await saveOrderRecord("UPI", payment);
+      document.getElementById("payment-step").classList.add("hidden");
+      document.getElementById("payment-success").classList.remove("hidden");
     }, modal: { ondismiss: () => { document.getElementById("upload-name").textContent = "Payment window closed. You can try again."; } } });
     checkout.on("payment.failed", (failure) => { document.getElementById("upload-name").textContent = failure.error?.description || "Payment failed. Please try again."; });
     checkout.open();
+  }
+
+  async function saveOrderRecord(payment, razorpayPayment = null) {
+    const form = document.getElementById("checkout-form");
+    const entries = cartEntries();
+    const total = entries.reduce((sum, entry) => sum + entry.product.price * entry.quantity, 0);
+    const result = await submitOrderToGoogle({
+      name: form.elements.name.value.trim(), phone: form.elements.phone.value.trim(), address: form.elements.address.value.trim(),
+      payment, total: money(total), razorpay: razorpayPayment,
+      items: entries.map(({ product, quantity }) => ({ name: product.name, quantity, price: product.price })), screenshot: null
+    });
+    if (!result.ok && !result.missingEndpoint) throw new Error(result.error || "Order could not be saved.");
   }
 
   function handleCheckout(event) {
@@ -428,17 +441,21 @@
     const paymentComplete = document.getElementById("payment-complete");
     const razorpayPay = document.getElementById("razorpay-pay");
     const paymentProof = document.getElementById("payment-proof");
+    const codConfirm = document.getElementById("cod-confirm");
     const paymentClose = document.getElementById("payment-close");
     const proofPreview = document.getElementById("proof-preview");
     const uploadName = document.getElementById("upload-name");
     const paymentRadios = document.querySelectorAll('input[name="payment"]');
     const updatePaymentInstructions = () => {
       const cod = document.querySelector('input[name="payment"]:checked')?.value === "Cash on delivery";
-      if (paymentComplete) paymentComplete.innerHTML = cod ? 'Confirm cash on delivery <span aria-hidden="true">✓</span>' : 'Send payment proof on WhatsApp <span aria-hidden="true">↗</span>';
+      if (paymentComplete) paymentComplete.innerHTML = cod ? 'Confirm cash on delivery <span aria-hidden="true">✓</span>' : 'Submit payment proof <span aria-hidden="true">✓</span>';
+      if (codConfirm) codConfirm.classList.toggle("hidden", !cod);
+      if (razorpayPay) razorpayPay.classList.toggle("hidden", cod);
       if (paymentProof) paymentProof.required = !cod;
       if (uploadName) uploadName.textContent = cod ? "No payment upload is needed for cash on delivery." : "After payment, upload your screenshot to send it with your order.";
     };
     paymentRadios.forEach((radio) => radio.addEventListener("change", updatePaymentInstructions));
+    updatePaymentInstructions();
     if (paymentProof) paymentProof.addEventListener("change", () => {
       const file = paymentProof.files[0];
       if (!file) return;
@@ -473,6 +490,13 @@
       if (!result.ok) { uploadName.textContent = "The order could not be saved. Please try again."; return; }
       document.getElementById("payment-step").classList.add("hidden");
       document.getElementById("payment-success").classList.remove("hidden");
+    });
+    if (codConfirm) codConfirm.addEventListener("click", async () => {
+      try {
+        await saveOrderRecord("Cash on delivery");
+        document.getElementById("payment-step").classList.add("hidden");
+        document.getElementById("payment-success").classList.remove("hidden");
+      } catch (error) { uploadName.textContent = error.message; }
     });
     if (razorpayPay) razorpayPay.addEventListener("click", async () => {
       if (document.querySelector('input[name="payment"]:checked')?.value === "Cash on delivery") { uploadName.textContent = "Select UPI to use Razorpay online payment."; return; }
