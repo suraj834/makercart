@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const https = require("https");
 const crypto = require("crypto");
-const { MongoClient } = require("mongodb");
+const mysql = require("mysql2/promise");
 
 function loadEnv() {
   try {
@@ -15,16 +15,14 @@ function loadEnv() {
 }
 
 loadEnv();
-let mongoClient;
-let mongoDatabase;
+let databasePool;
 
 async function getDatabase() {
-  if (mongoDatabase) return mongoDatabase;
-  if (!process.env.MONGODB_URI) throw new Error("MongoDB is not configured on the server.");
-  mongoClient = new MongoClient(process.env.MONGODB_URI);
-  await mongoClient.connect();
-  mongoDatabase = mongoClient.db(process.env.MONGODB_DB || "makercart");
-  return mongoDatabase;
+  if (databasePool) return databasePool;
+  if (!process.env.DB_HOST || !process.env.DB_NAME || !process.env.DB_USER || !process.env.DB_PASSWORD) throw new Error("Hosted MySQL is not configured on the server.");
+  databasePool = mysql.createPool({ host: process.env.DB_HOST, port: Number(process.env.DB_PORT) || 3306, database: process.env.DB_NAME, user: process.env.DB_USER, password: process.env.DB_PASSWORD, waitForConnections: true, connectionLimit: 5 });
+  await databasePool.query(`CREATE TABLE IF NOT EXISTS orders (id INT AUTO_INCREMENT PRIMARY KEY, order_status VARCHAR(40) NOT NULL DEFAULT 'new', customer_name VARCHAR(120) NOT NULL, customer_phone VARCHAR(40) NOT NULL, delivery_address TEXT NOT NULL, payment_method VARCHAR(40) NOT NULL, total VARCHAR(40) NOT NULL, items JSON NOT NULL, razorpay_payment_id VARCHAR(100), razorpay_order_id VARCHAR(100), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`);
+  return databasePool;
 }
 
 const root = __dirname;
@@ -78,8 +76,8 @@ async function saveOrder(request, response) {
     const payload = JSON.parse(await readRequestBody(request) || "{}");
     if (!payload.name || !payload.phone || !payload.address || !payload.payment || !Array.isArray(payload.items)) return json(response, 400, { ok: false, error: "Missing order details." });
     const database = await getDatabase();
-    const result = await database.collection("orders").insertOne({ ...payload, status: "new", createdAt: new Date() });
-    json(response, 201, { ok: true, order_id: result.insertedId.toString() });
+    const [result] = await database.execute("INSERT INTO orders (customer_name, customer_phone, delivery_address, payment_method, total, items, razorpay_payment_id, razorpay_order_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [payload.name, payload.phone, payload.address, payload.payment, payload.total || "", JSON.stringify(payload.items), payload.razorpay?.razorpay_payment_id || null, payload.razorpay?.razorpay_order_id || null]);
+    json(response, 201, { ok: true, order_id: result.insertId });
   } catch (error) { json(response, 500, { ok: false, error: error.message }); }
 }
 
@@ -125,7 +123,7 @@ function fileForRequest(requestUrl) {
 }
 
 const server = http.createServer((request, response) => {
-  if (request.method === "GET" && request.url === "/api/health") return json(response, 200, { ok: true, razorpayConfigured: Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET), databaseConfigured: Boolean(process.env.MONGODB_URI) });
+  if (request.method === "GET" && request.url === "/api/health") return json(response, 200, { ok: true, razorpayConfigured: Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET), databaseConfigured: Boolean(process.env.DB_HOST && process.env.DB_NAME && process.env.DB_USER && process.env.DB_PASSWORD) });
   if (request.method === "OPTIONS" && request.url.startsWith("/api/")) {
     response.writeHead(204, { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" });
     response.end();
