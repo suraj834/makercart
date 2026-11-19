@@ -299,6 +299,24 @@
     }
   }
 
+  async function startRazorpayPayment() {
+    const form = document.getElementById("checkout-form");
+    const entries = cartEntries();
+    const totalPaise = Math.round(entries.reduce((sum, entry) => sum + entry.product.price * entry.quantity, 0) * 100);
+    const response = await fetch("/api/create-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ amount: totalPaise, receipt: `mc_${Date.now()}` }) });
+    const order = await response.json();
+    if (!response.ok) throw new Error(order.error || "Unable to create Razorpay order.");
+    const checkout = new Razorpay({ key: order.key_id, amount: order.amount, currency: order.currency, name: "Maker Cart", description: "Maker Cart order", order_id: order.order_id, prefill: { name: form.elements.name.value.trim(), contact: form.elements.phone.value.trim() }, theme: { color: "#247f69" }, handler: async (payment) => {
+      const verifyResponse = await fetch("/api/verify-payment", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payment) });
+      const result = await verifyResponse.json();
+      if (!verifyResponse.ok || !result.verified) throw new Error(result.error || "Payment verification failed.");
+      document.getElementById("upload-name").textContent = "Razorpay payment verified. You can upload proof if needed, then submit your order.";
+      document.getElementById("payment-complete").click();
+    }, modal: { ondismiss: () => { document.getElementById("upload-name").textContent = "Payment window closed. You can try again."; } } });
+    checkout.on("payment.failed", (failure) => { document.getElementById("upload-name").textContent = failure.error?.description || "Payment failed. Please try again."; });
+    checkout.open();
+  }
+
   function handleCheckout(event) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -406,6 +424,7 @@
     const checkoutForm = document.getElementById("checkout-form");
     if (checkoutForm) checkoutForm.addEventListener("submit", handleCheckout);
     const paymentComplete = document.getElementById("payment-complete");
+    const razorpayPay = document.getElementById("razorpay-pay");
     const paymentProof = document.getElementById("payment-proof");
     const paymentClose = document.getElementById("payment-close");
     const proofPreview = document.getElementById("proof-preview");
@@ -452,6 +471,12 @@
       if (!result.ok) { uploadName.textContent = "The order could not be saved. Please try again."; return; }
       document.getElementById("payment-step").classList.add("hidden");
       document.getElementById("payment-success").classList.remove("hidden");
+    });
+    if (razorpayPay) razorpayPay.addEventListener("click", async () => {
+      if (document.querySelector('input[name="payment"]:checked')?.value === "Cash on delivery") { uploadName.textContent = "Select UPI to use Razorpay online payment."; return; }
+      razorpayPay.disabled = true;
+      try { await startRazorpayPayment(); } catch (error) { uploadName.textContent = error.message; }
+      razorpayPay.disabled = false;
     });
     const copyButton = document.getElementById("copy-upi");
     if (copyButton) copyButton.addEventListener("click", async () => {
