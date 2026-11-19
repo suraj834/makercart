@@ -475,7 +475,7 @@
     if (razorpayPay) razorpayPay.addEventListener("click", async () => {
       if (document.querySelector('input[name="payment"]:checked')?.value === "Cash on delivery") { uploadName.textContent = "Select UPI to use Razorpay online payment."; return; }
       razorpayPay.disabled = true;
-      try { await startRazorpayPayment(); } catch (error) { uploadName.textContent = error.message; }
+      try { await startRazorpayPayment(); } catch (error) { uploadName.textContent = error.message === "Failed to fetch" ? "Razorpay server is not connected. Deploy the latest Node.js app on GoDaddy and try again." : error.message; }
       razorpayPay.disabled = false;
     });
     const copyButton = document.getElementById("copy-upi");
