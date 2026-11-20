@@ -443,7 +443,7 @@
       checkoutForm.addEventListener("submit", handleCheckout);
       const phoneInput = checkoutForm.elements.phone;
       phoneInput.addEventListener("input", () => {
-        phoneInput.value = phoneInput.value.replace(/\D/g, "").slice(0, 12);
+        phoneInput.value = phoneInput.value.replace(/\D/g, "").slice(0, 10);
       });
     }
     const paymentComplete = document.getElementById("payment-complete");
