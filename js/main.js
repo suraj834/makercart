@@ -86,7 +86,7 @@
           <a class="brand" href="index.html" aria-label="MakerCart home"><span class="brand-mark" aria-hidden="true">✳</span><span class="brand-word">Maker<span>Cart</span></span></a>
           <nav class="primary-nav" id="primary-navigation" aria-label="Main navigation">${nav}</nav>
           <div class="header-actions">
-            <a class="header-cart" href="cart.html" aria-label="Shopping cart, 0 items"><span aria-hidden="true">Bag</span><span class="cart-count" data-cart-count>0</span></a>
+            <a class="header-cart" href="cart.html" aria-label="Shopping cart, 0 items"><span aria-hidden="true">Cart</span><span class="cart-count" data-cart-count>0</span></a>
             <button class="menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="primary-navigation"><span></span><span></span><span></span></button>
           </div>
         </div>
@@ -106,7 +106,7 @@
               <p>Good parts for curious minds. Find a starting point, ask a question and keep your next idea moving.</p>
             </div>
             <div><p class="footer-heading">Explore</p><nav class="footer-links" aria-label="Footer shop links"><a href="shop.html">Shop all parts</a><a href="about.html">Our story</a><a href="contact.html">Get in touch</a></nav></div>
-          <div><p class="footer-heading">Need a hand?</p><nav class="footer-links" aria-label="Footer help links"><a href="contact.html">Product questions</a><a href="shipping.html">Shipping & returns</a><a href="cart.html">Your cart</a></nav></div>
+          <div><p class="footer-heading">Need a hand?</p><nav class="footer-links" aria-label="Footer help links"><a href="contact.html">Product questions</a><a href="shipping.html">Shipping & returns</a><a href="cart.html">Your cart</a><a href="tel:+919140766574">Call +91 9140766574</a></nav></div>
           </div>
           <div class="footer-bottom"><p>© ${new Date().getFullYear()} MakerCart. Keep making.</p><p>Delivery and payment details are confirmed directly before an order is accepted.</p></div>
         </div>
@@ -239,7 +239,7 @@
       <article class="cart-item">
         <a class="cart-item-image" href="product.html?id=${encodeURIComponent(product.id)}" aria-label="View ${escapeHTML(product.name)}"><img src="${escapeHTML(product.image)}" alt="${escapeHTML(product.imageAlt)}"></a>
         <div class="cart-item-info"><h3><a href="product.html?id=${encodeURIComponent(product.id)}">${escapeHTML(product.shortName || product.name)}</a></h3><p>${escapeHTML(product.categoryLabel)}</p><p class="cart-item-price">${money(product.price)} each</p></div>
-        <div class="cart-item-controls"><label class="sr-only" for="quantity-${escapeHTML(product.id)}">Quantity of ${escapeHTML(product.name)}</label><input class="cart-quantity" id="quantity-${escapeHTML(product.id)}" type="number" min="1" max="99" value="${quantity}" inputmode="numeric" data-cart-quantity="${escapeHTML(product.id)}"><button class="remove-item" type="button" data-remove-from-cart="${escapeHTML(product.id)}">Remove</button></div>
+        <div class="cart-item-controls"><label class="sr-only" for="quantity-${escapeHTML(product.id)}">Quantity of ${escapeHTML(product.name)}</label><div class="quantity-stepper"><button type="button" class="quantity-button" data-decrease-cart="${escapeHTML(product.id)}" aria-label="Decrease quantity">−</button><input class="cart-quantity" id="quantity-${escapeHTML(product.id)}" type="number" min="1" max="99" value="${quantity}" inputmode="numeric" data-cart-quantity="${escapeHTML(product.id)}"><button type="button" class="quantity-button" data-increase-cart="${escapeHTML(product.id)}" aria-label="Increase quantity">+</button></div><button class="remove-item" type="button" data-remove-from-cart="${escapeHTML(product.id)}">Remove</button></div>
       </article>`;
   }
 
@@ -410,6 +410,17 @@
         saveCart(cart);
         renderCart();
         showToast("Item removed from your cart.");
+        return;
+      }
+      const stepButton = event.target.closest("[data-increase-cart], [data-decrease-cart]");
+      if (stepButton) {
+        const cart = readCart();
+        const id = stepButton.dataset.increaseCart || stepButton.dataset.decreaseCart;
+        const current = cart[id] || 1;
+        const next = stepButton.dataset.increaseCart ? Math.min(99, current + 1) : current - 1;
+        if (next < 1) delete cart[id]; else cart[id] = next;
+        saveCart(cart);
+        renderCart();
       }
     });
 
@@ -428,7 +439,13 @@
     });
 
     const checkoutForm = document.getElementById("checkout-form");
-    if (checkoutForm) checkoutForm.addEventListener("submit", handleCheckout);
+    if (checkoutForm) {
+      checkoutForm.addEventListener("submit", handleCheckout);
+      const phoneInput = checkoutForm.elements.phone;
+      phoneInput.addEventListener("input", () => {
+        phoneInput.value = phoneInput.value.replace(/\D/g, "").slice(0, 12);
+      });
+    }
     const paymentComplete = document.getElementById("payment-complete");
     const razorpayPay = document.getElementById("razorpay-pay");
     const paymentProof = document.getElementById("payment-proof");
