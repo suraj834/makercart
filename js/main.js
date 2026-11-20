@@ -317,7 +317,7 @@
     const entries = cartEntries();
     const total = entries.reduce((sum, entry) => sum + entry.product.price * entry.quantity, 0);
     const result = await submitOrder({
-      name: form.elements.name.value.trim(), phone: form.elements.phone.value.trim(), email: form.elements.email.value.trim(), address: form.elements.address.value.trim(),
+      name: form.elements.name.value.trim(), phone: form.elements.phone.value.trim(), whatsapp: form.elements.whatsapp.value.trim(), email: form.elements.email.value.trim(), address: form.elements.address.value.trim(),
       payment, total: money(total), razorpay: razorpayPayment,
       items: entries.map(({ product, quantity }) => ({ name: product.name, quantity })), screenshot: null
     });
@@ -343,12 +343,19 @@
     }
     const name = form.elements.name.value.trim();
     const phone = form.elements.phone.value.trim();
+    const whatsapp = form.elements.whatsapp.value.trim();
     const email = form.elements.email.value.trim();
     const address = form.elements.address.value.trim();
     if (!/^[6-9]\d{9}$/.test(phone)) {
       form.elements.phone.setCustomValidity("Enter a valid 10-digit Indian mobile number starting with 6, 7, 8 or 9.");
       form.elements.phone.reportValidity();
       form.elements.phone.setCustomValidity("");
+      return;
+    }
+    if (!/^[6-9]\d{9}$/.test(whatsapp)) {
+      form.elements.whatsapp.setCustomValidity("Enter a valid 10-digit WhatsApp number starting with 6, 7, 8 or 9.");
+      form.elements.whatsapp.reportValidity();
+      form.elements.whatsapp.setCustomValidity("");
       return;
     }
     const payment = form.elements.payment.value;
@@ -364,6 +371,7 @@
       "",
       `Name: ${name}`,
       `Phone: ${phone}`,
+      `WhatsApp: ${whatsapp}`,
       `Email: ${email}`,
       `Delivery address: ${address}`
     ].join("\n");
@@ -450,9 +458,9 @@
     if (checkoutForm) {
       checkoutForm.addEventListener("submit", handleCheckout);
       const phoneInput = checkoutForm.elements.phone;
-      phoneInput.addEventListener("input", () => {
-        phoneInput.value = phoneInput.value.replace(/\D/g, "").slice(0, 10);
-      });
+      [phoneInput, checkoutForm.elements.whatsapp].forEach((input) => input.addEventListener("input", () => {
+        input.value = input.value.replace(/\D/g, "").slice(0, 10);
+      }));
     }
     const paymentComplete = document.getElementById("payment-complete");
     const razorpayPay = document.getElementById("razorpay-pay");

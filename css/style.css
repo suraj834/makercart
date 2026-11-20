@@ -314,6 +314,8 @@ h3 { font-size: 19px; font-weight: 800; }
 .about-hero h1 { font-size: clamp(43px, 5vw, 62px); }
 .about-hero > div:first-child > p:not(.eyebrow) { max-width: 475px; margin-bottom: 25px; color: var(--ink-soft); font-size: 16px; line-height: 1.8; }
 .about-illustration { height: 350px; position: relative; overflow: hidden; border-radius: 44% 56% 50% 50% / 54% 40% 60% 46%; background: var(--peach); }
+.about-photo { background: #f5efe7; box-shadow: 0 24px 45px rgba(32,61,69,.10); }
+.about-photo img { width: 100%; height: 100%; display: block; object-fit: cover; }
 .about-sun { width: 210px; height: 210px; position: absolute; top: 71px; left: calc(50% - 105px); border-radius: 50%; background: #f0c984; opacity: .74; }
 .about-board-chip { width: 125px; height: 132px; position: absolute; top: 104px; left: calc(50% - 62px); display: grid; align-content: center; border: 10px solid #1a7476; border-radius: 18px; background: #214450; color: #c2e2d0; text-align: center; font-size: 22px; font-weight: 800; line-height: 1.2; transform: rotate(-8deg); box-shadow: 0 19px 30px rgba(32,61,69,.2); }
 .about-board-chip b { font-size: 31px; }
