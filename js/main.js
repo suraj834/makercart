@@ -344,6 +344,12 @@
     const name = form.elements.name.value.trim();
     const phone = form.elements.phone.value.trim();
     const address = form.elements.address.value.trim();
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+      form.elements.phone.setCustomValidity("Enter a valid 10-digit Indian mobile number starting with 6, 7, 8 or 9.");
+      form.elements.phone.reportValidity();
+      form.elements.phone.setCustomValidity("");
+      return;
+    }
     const payment = form.elements.payment.value;
     const total = entries.reduce((sum, entry) => sum + entry.product.price * entry.quantity, 0);
     const itemLines = entries.map(({ product, quantity }) => `• ${product.name} × ${quantity} — ${money(product.price * quantity)}`);

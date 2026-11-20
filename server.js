@@ -76,6 +76,7 @@ async function saveOrder(request, response) {
   try {
     const payload = JSON.parse(await readRequestBody(request) || "{}");
     if (!payload.name || !payload.phone || !payload.address || !payload.payment || !Array.isArray(payload.items)) return json(response, 400, { ok: false, error: "Missing order details." });
+    if (!/^[6-9]\d{9}$/.test(String(payload.phone))) return json(response, 400, { ok: false, error: "Enter a valid 10-digit Indian mobile number." });
     const items = payload.items
       .filter((item) => item && item.name)
       .map((item) => ({ name: String(item.name), quantity: Math.max(1, Number(item.quantity) || 1) }));
