@@ -75,8 +75,12 @@ async function saveOrder(request, response) {
   try {
     const payload = JSON.parse(await readRequestBody(request) || "{}");
     if (!payload.name || !payload.phone || !payload.address || !payload.payment || !Array.isArray(payload.items)) return json(response, 400, { ok: false, error: "Missing order details." });
+    const items = payload.items
+      .filter((item) => item && item.name)
+      .map((item) => ({ name: String(item.name), quantity: Math.max(1, Number(item.quantity) || 1) }));
+    if (!items.length) return json(response, 400, { ok: false, error: "At least one order item is required." });
     const database = await getDatabase();
-    const [result] = await database.execute("INSERT INTO orders (customer_name, customer_phone, delivery_address, payment_method, total, items, razorpay_payment_id, razorpay_order_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [payload.name, payload.phone, payload.address, payload.payment, payload.total || "", JSON.stringify(payload.items), payload.razorpay?.razorpay_payment_id || null, payload.razorpay?.razorpay_order_id || null]);
+    const [result] = await database.execute("INSERT INTO orders (customer_name, customer_phone, delivery_address, payment_method, total, items, razorpay_payment_id, razorpay_order_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [payload.name, payload.phone, payload.address, payload.payment, payload.total || "", JSON.stringify(items), payload.razorpay?.razorpay_payment_id || null, payload.razorpay?.razorpay_order_id || null]);
     json(response, 201, { ok: true, order_id: result.insertId });
   } catch (error) { json(response, 500, { ok: false, error: error.message }); }
 }
