@@ -17,6 +17,7 @@
   const money = (amount) => new Intl.NumberFormat("en-IN", {
     style: "currency", currency: "INR", maximumFractionDigits: 0
   }).format(amount);
+  const displayPrice = (product) => product.priceOnRequest ? "Price on request" : money(product.price);
 
   function escapeHTML(value) {
     return String(value).replace(/[&<>"']/g, (character) => ({
@@ -138,7 +139,7 @@
           <p class="product-category">${escapeHTML(product.categoryLabel)}</p>
           <h3 class="product-card-title"><a href="product.html?id=${encodeURIComponent(product.id)}">${escapeHTML(product.shortName || product.name)}</a></h3>
           <p class="product-card-desc">${escapeHTML(product.summary)}</p>
-          <div class="product-card-bottom"><strong class="product-price">${money(product.price)}</strong><button class="quick-add" type="button" data-add-to-cart="${escapeHTML(product.id)}" aria-label="Add ${escapeHTML(product.name)} to cart"><span aria-hidden="true">＋</span> Add to cart</button></div>
+          <div class="product-card-bottom"><strong class="product-price">${displayPrice(product)}</strong><button class="quick-add" type="button" data-add-to-cart="${escapeHTML(product.id)}" aria-label="Add ${escapeHTML(product.name)} to cart"><span aria-hidden="true">＋</span> Add to cart</button></div>
         </div>
       </article>`;
   }
@@ -214,7 +215,7 @@
         <div class="product-detail-info">
           <p class="product-category">${escapeHTML(product.categoryLabel)}</p>
           <h1>${escapeHTML(product.name)}</h1>
-          <p class="product-detail-price">${money(product.price)}</p>
+          <p class="product-detail-price">${displayPrice(product)}</p>
           <p class="product-detail-description">${escapeHTML(product.description)}</p>
           <p class="detail-tag">${escapeHTML(product.tag)}</p>
           <div class="detail-specs"><h2>What to know</h2><ul class="check-list">${product.specs.map((spec) => `<li>${escapeHTML(spec)}</li>`).join("")}</ul></div>
@@ -238,7 +239,7 @@
     return `
       <article class="cart-item">
         <a class="cart-item-image" href="product.html?id=${encodeURIComponent(product.id)}" aria-label="View ${escapeHTML(product.name)}"><img src="${escapeHTML(product.image)}" alt="${escapeHTML(product.imageAlt)}"></a>
-        <div class="cart-item-info"><h3><a href="product.html?id=${encodeURIComponent(product.id)}">${escapeHTML(product.shortName || product.name)}</a></h3><p>${escapeHTML(product.categoryLabel)}</p><p class="cart-item-price">${money(product.price)} each</p></div>
+        <div class="cart-item-info"><h3><a href="product.html?id=${encodeURIComponent(product.id)}">${escapeHTML(product.shortName || product.name)}</a></h3><p>${escapeHTML(product.categoryLabel)}</p><p class="cart-item-price">${displayPrice(product)}</p></div>
         <div class="cart-item-controls"><label class="sr-only" for="quantity-${escapeHTML(product.id)}">Quantity of ${escapeHTML(product.name)}</label><div class="quantity-stepper"><button type="button" class="quantity-button" data-decrease-cart="${escapeHTML(product.id)}" aria-label="Decrease quantity">−</button><input class="cart-quantity" id="quantity-${escapeHTML(product.id)}" type="number" min="1" max="99" value="${quantity}" inputmode="numeric" data-cart-quantity="${escapeHTML(product.id)}"><button type="button" class="quantity-button" data-increase-cart="${escapeHTML(product.id)}" aria-label="Increase quantity">+</button></div><button class="remove-item" type="button" data-remove-from-cart="${escapeHTML(product.id)}">Remove</button></div>
       </article>`;
   }
