@@ -111,7 +111,7 @@ const PDF_CATALOG_NAMES = ["Arduino UNO, Cable", "Arduino Nano", "Arduino Mega",
 
 window.MAKER_CART_PRODUCTS.push(...PDF_CATALOG_NAMES.map((name, index) => ({
   id: `pdf-${index + 1}`, name, shortName: name,
-  category: name.toLowerCase().includes("sensor") ? "sensors" : name.toLowerCase().includes("motor") || name.toLowerCase().includes("kit") ? "kits" : "components",
+  category: /sensor|ultrasonic|accelerometer|magnetometer|humidity|therm|dht|ldr|gas|smoke|motion|moisture|touch|rain|flex|force|sound|flow|rfid|laser|color|pulse|ir /.test(name.toLowerCase()) ? "sensors" : /arduino|raspberry|node mcu|wemos|bluetooth|gsm|gps/.test(name.toLowerCase()) ? "boards" : /motor|robotics|drone|3d printer|filament|breadboard|proto|berg|jumper|wire|cable|battery|resistor|capacitor|led|buzzer|relay|switch|keypad|regulator|diode|transistor|555|lcd|display|charger|pump|piezo|alligator|servo|driver|joystick/.test(name.toLowerCase()) ? "kits" : "components",
   categoryLabel: "Electronic component", price: 0, priceOnRequest: true, stock: "Available", tag: "PRICE ON REQUEST",
   image: name.toLowerCase().includes("sensor") ? "images/sensor-ultrasonic.svg" : name.toLowerCase().includes("motor") ? "images/kit-breadboard.svg" : "images/board-uno.svg",
   imageAlt: `${name} electronic component`, summary: `${name} for electronics, Arduino, robotics and maker projects.`,
