@@ -319,7 +319,7 @@
     const result = await submitOrder({
       name: form.elements.name.value.trim(), phone: form.elements.phone.value.trim(), address: form.elements.address.value.trim(),
       payment, total: money(total), razorpay: razorpayPayment,
-      items: entries.map(({ product, quantity }) => ({ name: product.name, quantity, price: product.price })), screenshot: null
+      items: entries.map(({ product, quantity }) => ({ name: product.name, quantity })), screenshot: null
     });
   }
 
@@ -471,7 +471,7 @@
       const result = await submitOrderToGoogle({
         name: form.elements.name.value.trim(), phone: form.elements.phone.value.trim(),
         address: form.elements.address.value.trim(), payment: paymentMethod,
-        total: money(total), items: entries.map(({ product, quantity }) => ({ name: product.name, quantity, price: product.price })),
+        total: money(total), items: entries.map(({ product, quantity }) => ({ name: product.name, quantity })),
         screenshot: file ? { name: file.name, type: file.type, data: screenshot } : null
       });
       if (result.missingEndpoint) {
