@@ -83,7 +83,7 @@
     mount.innerHTML = `
       <header class="site-header">
         <div class="header-inner">
-          <a class="brand" href="index.html" aria-label="MakerCart home"><span class="brand-mark" aria-hidden="true">✳</span><span class="brand-word">Maker<span>Cart</span></span></a>
+          <a class="brand" href="index.html" aria-label="MakerCart home"><img class="brand-logo" src="images/makercart-logo-c.png" alt="MakerCart"></a>
           <nav class="primary-nav" id="primary-navigation" aria-label="Main navigation">${nav}</nav>
           <div class="header-actions">
             <a class="header-cart" href="cart.html" aria-label="Shopping cart, 0 items"><span aria-hidden="true">Cart</span><span class="cart-count" data-cart-count>0</span></a>
@@ -102,7 +102,7 @@
         <div class="wrap">
           <div class="footer-main">
             <div class="footer-brand">
-              <a class="brand" href="index.html" aria-label="MakerCart home"><span class="brand-mark" aria-hidden="true">✳</span><span class="brand-word">Maker<span>Cart</span></span></a>
+              <a class="brand" href="index.html" aria-label="MakerCart home"><img class="brand-logo" src="images/makercart-logo-c.png" alt="MakerCart"></a>
               <p>Good parts for curious minds. Find a starting point, ask a question and keep your next idea moving.</p>
             </div>
             <div><p class="footer-heading">Explore</p><nav class="footer-links" aria-label="Footer shop links"><a href="shop.html">Shop all parts</a><a href="about.html">Our story</a><a href="contact.html">Get in touch</a></nav></div>
