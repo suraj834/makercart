@@ -21,8 +21,9 @@ async function getDatabase() {
   if (databasePool) return databasePool;
   if (!process.env.DB_HOST || !process.env.DB_NAME || !process.env.DB_USER || !process.env.DB_PASSWORD) throw new Error("Hosted MySQL is not configured on the server.");
   databasePool = mysql.createPool({ host: process.env.DB_HOST, port: Number(process.env.DB_PORT) || 3306, database: process.env.DB_NAME, user: process.env.DB_USER, password: process.env.DB_PASSWORD, waitForConnections: true, connectionLimit: 5 });
-  await databasePool.query(`CREATE TABLE IF NOT EXISTS orders (id INT AUTO_INCREMENT PRIMARY KEY, order_status VARCHAR(40) NOT NULL DEFAULT 'new', customer_name VARCHAR(120) NOT NULL, customer_phone VARCHAR(40) NOT NULL, delivery_address TEXT NOT NULL, payment_method VARCHAR(40) NOT NULL, total VARCHAR(40) NOT NULL, items TEXT NOT NULL, razorpay_payment_id VARCHAR(100), razorpay_order_id VARCHAR(100), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`);
+  await databasePool.query(`CREATE TABLE IF NOT EXISTS orders (id INT AUTO_INCREMENT PRIMARY KEY, order_status VARCHAR(40) NOT NULL DEFAULT 'new', customer_name VARCHAR(120) NOT NULL, customer_phone VARCHAR(40) NOT NULL, customer_email VARCHAR(160) NOT NULL, delivery_address TEXT NOT NULL, payment_method VARCHAR(40) NOT NULL, total VARCHAR(40) NOT NULL, items TEXT NOT NULL, razorpay_payment_id VARCHAR(100), razorpay_order_id VARCHAR(100), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`);
   await databasePool.query("ALTER TABLE orders MODIFY COLUMN items TEXT NOT NULL");
+  await databasePool.query("ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_email VARCHAR(160) NOT NULL DEFAULT '' AFTER customer_phone");
   return databasePool;
 }
 
@@ -75,15 +76,16 @@ function readRequestBody(request) {
 async function saveOrder(request, response) {
   try {
     const payload = JSON.parse(await readRequestBody(request) || "{}");
-    if (!payload.name || !payload.phone || !payload.address || !payload.payment || !Array.isArray(payload.items)) return json(response, 400, { ok: false, error: "Missing order details." });
+    if (!payload.name || !payload.phone || !payload.email || !payload.address || !payload.payment || !Array.isArray(payload.items)) return json(response, 400, { ok: false, error: "Missing order details." });
     if (!/^[6-9]\d{9}$/.test(String(payload.phone))) return json(response, 400, { ok: false, error: "Enter a valid 10-digit Indian mobile number." });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(payload.email))) return json(response, 400, { ok: false, error: "Enter a valid email address." });
     const items = payload.items
       .filter((item) => item && item.name)
       .map((item) => ({ name: String(item.name), quantity: Math.max(1, Number(item.quantity) || 1) }));
     if (!items.length) return json(response, 400, { ok: false, error: "At least one order item is required." });
     const itemsText = items.map((item, index) => `${index + 1}. ${item.name} — Quantity: ${item.quantity}`).join("\n");
     const database = await getDatabase();
-    const [result] = await database.execute("INSERT INTO orders (customer_name, customer_phone, delivery_address, payment_method, total, items, razorpay_payment_id, razorpay_order_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [payload.name, payload.phone, payload.address, payload.payment, payload.total || "", itemsText, payload.razorpay?.razorpay_payment_id || null, payload.razorpay?.razorpay_order_id || null]);
+    const [result] = await database.execute("INSERT INTO orders (customer_name, customer_phone, customer_email, delivery_address, payment_method, total, items, razorpay_payment_id, razorpay_order_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [payload.name, payload.phone, payload.email, payload.address, payload.payment, payload.total || "", itemsText, payload.razorpay?.razorpay_payment_id || null, payload.razorpay?.razorpay_order_id || null]);
     json(response, 201, { ok: true, order_id: result.insertId });
   } catch (error) { json(response, 500, { ok: false, error: error.message }); }
 }

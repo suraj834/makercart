@@ -300,7 +300,7 @@
     let order;
     try { order = JSON.parse(responseText); } catch (error) { throw new Error("The live server is not running the Node.js API yet. Update and publish the GoDaddy app, then try again."); }
     if (!response.ok) throw new Error(order.error || "Unable to create Razorpay order.");
-    const checkout = new Razorpay({ key: order.key_id, amount: order.amount, currency: order.currency, name: "Maker Cart", description: "Maker Cart order", order_id: order.order_id, prefill: { name: form.elements.name.value.trim(), contact: form.elements.phone.value.trim() }, theme: { color: "#247f69" }, handler: async (payment) => {
+    const checkout = new Razorpay({ key: order.key_id, amount: order.amount, currency: order.currency, name: "Maker Cart", description: "Maker Cart order", order_id: order.order_id, prefill: { name: form.elements.name.value.trim(), email: form.elements.email.value.trim(), contact: form.elements.phone.value.trim() }, theme: { color: "#247f69" }, handler: async (payment) => {
       const verifyResponse = await fetch(`${API_BASE_URL}/api/verify-payment`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payment) });
       const result = await verifyResponse.json();
       if (!verifyResponse.ok || !result.verified) throw new Error(result.error || "Payment verification failed.");
@@ -317,7 +317,7 @@
     const entries = cartEntries();
     const total = entries.reduce((sum, entry) => sum + entry.product.price * entry.quantity, 0);
     const result = await submitOrder({
-      name: form.elements.name.value.trim(), phone: form.elements.phone.value.trim(), address: form.elements.address.value.trim(),
+      name: form.elements.name.value.trim(), phone: form.elements.phone.value.trim(), email: form.elements.email.value.trim(), address: form.elements.address.value.trim(),
       payment, total: money(total), razorpay: razorpayPayment,
       items: entries.map(({ product, quantity }) => ({ name: product.name, quantity })), screenshot: null
     });
@@ -343,6 +343,7 @@
     }
     const name = form.elements.name.value.trim();
     const phone = form.elements.phone.value.trim();
+    const email = form.elements.email.value.trim();
     const address = form.elements.address.value.trim();
     if (!/^[6-9]\d{9}$/.test(phone)) {
       form.elements.phone.setCustomValidity("Enter a valid 10-digit Indian mobile number starting with 6, 7, 8 or 9.");
@@ -363,6 +364,7 @@
       "",
       `Name: ${name}`,
       `Phone: ${phone}`,
+      `Email: ${email}`,
       `Delivery address: ${address}`
     ].join("\n");
     if (openWhatsApp(message)) {
